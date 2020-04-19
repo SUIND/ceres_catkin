@@ -21,6 +21,16 @@ else (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(GOMP_PATCH "--dry-run")
 endif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
+IF(DEFINED ENV{ARM_ARCHITECTURE})
+	IF("$ENV{ARM_ARCHITECTURE}" STREQUAL "aarch64")
+           SET(CMAKE_FLAGS "-O3 -march=native  -fPIC")
+        ELSE()
+           SET(CMAKE_FLAGS "-fPIC")
+	ENDIF()
+ELSE()
+  SET(CMAKE_FLAGS "-fPIC")
+ENDIF()
+
 ExternalProject_Add(ceres_src
   GIT_REPOSITORY https://github.com/ceres-solver/ceres-solver.git
   GIT_TAG ${VERSION}
@@ -39,7 +49,7 @@ ExternalProject_Add(ceres_src
     -DCMAKE_INSTALL_PREFIX=${CATKIN_DEVEL_PREFIX} -DBUILD_SHARED_LIBS=ON
     -DCMAKE_VERBOSE_MAKEFILE=ON
     -DCMAKE_BUILD_TYPE:STRING=Release
-    -DCMAKE_CXX_FLAGS=-march=native -O3 -fPIC
+    -DCMAKE_CXX_FLAGS=${CMAKE_FLAGS}
     -DCMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY=ON
     -DCMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY=ON
     ../ceres_src
